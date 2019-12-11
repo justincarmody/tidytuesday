@@ -1,0 +1,127 @@
+---
+title: 'TidyTuesday 50 [10-12-19]: Replicating Plots in R'
+author: "Justin Carmody"
+date: "11/12/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytuesdayR)
+
+library(ggthemes)
+```
+
+For this week I won't actually post anything (because tbh I don't really understand the theme for this week). But I will copy and go through the code for those 4 plots in the blog post.
+
+https://simplystatistics.org/2019/08/28/you-can-replicate-almost-any-plot-with-ggplot2/
+
+# Load Data
+
+Use the `tidytuesdayR` package to load in the data sets:
+
+```{r}
+tuesdata <- tidytuesdayR::tt_load(2019, week = 50)
+```
+
+Note that this loads a list that contains four different data sets (which are all tibbles that you can access using the `$` notation).
+
+# International Murders
+
+```{r}
+tuesdata$international_murders %>%
+    mutate(country = reorder(country, -count)) %>%      # this reorders the factor levels of country
+    ggplot(aes(x = country, y = count, label = label)) +
+    geom_bar(stat = "identity", fill = "darkred") +
+    geom_text(nudge_y = 0.2, color = "darkred", size = 5) +
+    scale_y_continuous(breaks = c(0,1,2,3,4), limits = c(0,4)) +
+    ggtitle("Homicide Per 100,000 in G-8 Countries") +
+    xlab("") +
+    ylab("# of gun related homicides\nper 100,000 people") +
+    ggthemes::theme_economist() +
+    theme(axis.ticks.x = element_blank(),
+          axis.line.x = element_blank(),
+          plot.margin = unit(c(1,1,1,1), "cm")
+          )
+    
+```
+
+*note: couldn't figure out how to install the ggflags package, so didn't include the flag icons in the x-axis labels.*
+
+# Gun Murders
+
+```{r}
+tuesdata$gun_murders %>%
+    mutate(country = reorder(country, count)) %>%
+    ggplot(aes(x = country, y = count, label = count)) +
+    geom_bar(stat = "identity", fill = "darkred", width = 0.5) +
+    geom_text(nudge_y = 0.2, size = 3) +
+    xlab("") +
+    ylab("") +
+    ggtitle("Gun Murders oer 100,000 Residents") +
+    theme_minimal() +
+    theme(panel.grid.major =element_blank(), panel.grid.minor = element_blank(), 
+          axis.text.x = element_blank(),
+          axis.ticks.length = unit(-0.4, "cm")
+          ) +
+    coord_flip()
+```
+
+# Diseases
+
+```{r}
+# copy his colour palette
+jet.colors <- colorRampPalette(c("#F0FFFF", "cyan", "#007FFF", "yellow", "#FFBF00", "orange", "red", "#7F0000"), bias = 2.25)
+
+# and he does some preprocessing to get this into format to plot
+the_disease <- "Measles"
+dat <- tuesdata$diseases %>%
+  filter(!state%in%c("Hawaii","Alaska") & disease == the_disease) %>%
+  mutate(rate = count / population * 10000 * 52 / weeks_reporting) 
+
+dat %>%
+    mutate(state = reorder(state, desc(state))) %>%
+    ggplot(aes(x = year, state, fill = rate)) +
+    geom_tile(colour = "white", size = 0.35) +
+    scale_x_continuous(expand = c(0,0)) +
+    scale_fill_gradientn(colours = jet.colors(16), na.value = "white") +
+    geom_vline(xintercept = 1963, col = "black") +
+    theme_minimal() +
+    theme(panel.grid = element_blank()) +
+          coord_cartesian(clip = 'off') +
+          ggtitle(the_disease) +
+          ylab("") +
+          xlab("") +  
+          theme(legend.position = "bottom", text = element_text(size = 8)) + 
+    annotate(geom = "text", x = 1963, y = 50.5, label = "Vaccine introduced", size = 3, hjust = 0)
+``` 
+
+# New York City 'Regents' Exam Scores
+
+```{r}
+# tuesdata$nyc_regents$total <- rowSums(tuesdata$nyc_regents[,-1], na.rm=TRUE)
+
+tuesdata$nyc_regents %>%
+    filter(!is.na(score)) %>%
+    ggplot(aes(score, total)) + 
+    annotate("rect", xmin = 65, xmax = 100, ymin = 0, ymax = 35000, alpha = .5) +
+    geom_bar(stat = "identity", color = "black", fill = "#C4843C") +
+    annotate("text", x = 66, y = 28000, label = "MINIMUM\nREGENTS DIPLOMA\nSCORE IS 65", hjust = 0, size = 3) +
+    annotate("text", x = 0, y = 12000, label = "2010 Regents scores on\nthe five most common tests", hjust = 0, size = 3) +
+    scale_x_continuous(breaks = seq(5, 105, 5), limit = c(0,105)) +
+    scale_y_continuous(position = "right") +
+    ggtitle("Just Passing") +
+    xlab("") +
+    ylab("Number of Tests") +
+    theme_minimal() +
+    theme(panel.grid.major.x = element_blank(), 
+          panel.grid.minor.x = element_blank(),
+          axis.ticks.length = unit(-0.2, "cm"),
+          plot.title = element_text(face = "bold"))
+ 
+```
+
+*note: this graph honestly looks pretty gross, but the point here is to replicate the original figure, so whatever.*
+

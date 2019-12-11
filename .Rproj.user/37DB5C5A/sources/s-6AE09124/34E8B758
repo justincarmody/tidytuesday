@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576038977523.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4154545505",
+    "id" : "34E8B758",
+    "lastKnownWriteTime" : 1576042865,
+    "last_content_update" : 1576042865185,
+    "path" : "~/r/tidytuesday/workbooks/[2019-50] replicating plpts.Rmd",
+    "project_path" : "workbooks/[2019-50] replicating plpts.Rmd",
+    "properties" : {
+        "cursorPosition" : "127,0",
+        "last_setup_crc32" : "6AE09124b6917b1a",
+        "scrollLine" : "124",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
